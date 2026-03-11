@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 
 local Player = Players.LocalPlayer
 
+-- REMOTES
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local ColorRemote = Remotes:WaitForChild("UpdateRPColor")
 local NameRemote = Remotes:WaitForChild("UpdateRPName")
@@ -11,16 +12,18 @@ local BioColorRemote = Remotes:WaitForChild("UpdateBioColor")
 
 local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 
-local NameSpeed = 0.08
+-- SETTINGS
+local TypewriterSpeed = 0.05   -- speed of typing each letter
 local BioUpdateFrequency = 0.08
-local FadeSpeed = 4
+local FadeSpeed = 1.2           -- slower fade
 
+-- VARIABLES
 local Word = Player.DisplayName or Player.Name
-local charCount = 1
-local lastNameUpdate = 0
 local lastBioUpdate = 0
 local Connection
+local typeIndex = 0
 
+-- GUI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = Player:WaitForChild("PlayerGui")
 
@@ -47,24 +50,34 @@ Start.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Start.TextColor3 = Color3.new(1,1,1)
 Start.Parent = Frame
 
+-- COLOR LOOP (black → pink → black)
 local time = 0
-
-local function GetBWColor(dt)
+local function GetColor(dt)
 	time += dt * FadeSpeed
 	local alpha = (math.sin(time) + 1) / 2
-	return Color3.fromRGB(0,120,255):Lerp(Color3.fromRGB(255,255,255), alpha)
+	return Color3.fromRGB(0,0,0):Lerp(Color3.fromRGB(255,105,180), alpha) -- hot pink
 end
 
-local function StartSystem()
+-- TYPEWRITER TEXT
+local function TypewriterText(fullText)
+	typeIndex += 1
+	if typeIndex > #fullText then
+		typeIndex = #fullText
+	end
+	return fullText:sub(1, typeIndex)
+end
 
+-- START
+local function StartSystem()
 	Word = NameBox.Text ~= "" and NameBox.Text or Word
-	charCount = 1
 	ScreenGui:Destroy()
+	typeIndex = 0
 
 	Connection = RunService.Heartbeat:Connect(function(dt)
 
-		local NewColor = GetBWColor(dt)
+		local NewColor = GetColor(dt)
 
+		-- Update Colors
 		pcall(function()
 			ColorRemote:FireServer(NewColor)
 		end)
@@ -72,6 +85,7 @@ local function StartSystem()
 		lastBioUpdate += dt
 		if lastBioUpdate >= BioUpdateFrequency then
 			lastBioUpdate = 0
+
 			pcall(function()
 				if isBioFunction then
 					BioColorRemote:InvokeServer(NewColor)
@@ -81,18 +95,12 @@ local function StartSystem()
 			end)
 		end
 
-		lastNameUpdate += dt
-		if lastNameUpdate >= NameSpeed then
+		-- Typewriter update
+		local typed = TypewriterText(Word)
 
-			lastNameUpdate = 0
-			local text = string.sub(Word,1,charCount)
-
-			pcall(function()
-				NameRemote:FireServer(text)
-			end)
-
-			charCount = (charCount >= #Word) and 1 or (charCount + 1)
-		end
+		pcall(function()
+			NameRemote:FireServer(typed)
+		end)
 
 	end)
 end
