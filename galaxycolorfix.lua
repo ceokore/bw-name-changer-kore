@@ -141,3 +141,4 @@ local function StartSystem()
 end
 
 Start.MouseButton1Click:Connect(StartSystem)
+--it should work
