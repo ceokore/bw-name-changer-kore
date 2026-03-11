@@ -13,24 +13,28 @@ local BioColorRemote = Remotes:WaitForChild("UpdateBioColor")
 local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 
 -- SETTINGS
-local TypewriterSpeed = 0.05   -- speed of typing each letter
+local NameSpeed = 0.08
 local BioUpdateFrequency = 0.08
-local FadeSpeed = 1.2           -- slower fade
+local FadeSpeed = 2        -- smooth fade
 
 -- VARIABLES
 local Word = Player.DisplayName or Player.Name
+local charCount = 1
+local lastNameUpdate = 0
 local lastBioUpdate = 0
+local time = 0
 local Connection
-local typeIndex = 0
 
--- GUI
+-- ===== GUI =====
 local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "GalaxyNameChanger"
 ScreenGui.Parent = Player:WaitForChild("PlayerGui")
 
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0,280,0,130)
 Frame.Position = UDim2.new(.5,-140,.5,-65)
 Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Frame.BorderSizePixel = 0
 Frame.Parent = ScreenGui
 
 local NameBox = Instance.new("TextBox")
@@ -40,6 +44,7 @@ NameBox.PlaceholderText = "Enter RP Name"
 NameBox.Text = Word
 NameBox.BackgroundColor3 = Color3.fromRGB(220,220,220)
 NameBox.TextColor3 = Color3.new(0,0,0)
+NameBox.ClearTextOnFocus = false
 NameBox.Parent = Frame
 
 local Start = Instance.new("TextButton")
@@ -50,42 +55,54 @@ Start.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Start.TextColor3 = Color3.new(1,1,1)
 Start.Parent = Frame
 
--- COLOR LOOP (black → pink → black)
-local time = 0
-local function GetColor(dt)
+-- ===== COLOR FUNCTIONS =====
+local GalaxyColors = {
+	Color3.fromRGB(148,0,211), -- Purple
+	Color3.fromRGB(0,191,255), -- Blue
+	Color3.fromRGB(255,105,180) -- Pink
+}
+
+local function GetGalaxyColor(dt)
 	time += dt * FadeSpeed
 	local alpha = (math.sin(time) + 1) / 2
-	return Color3.fromRGB(0,0,0):Lerp(Color3.fromRGB(255,105,180), alpha) -- hot pink
-end
 
--- TYPEWRITER TEXT
-local function TypewriterText(fullText)
-	typeIndex += 1
-	if typeIndex > #fullText then
-		typeIndex = #fullText
+	-- Cycle through the 3 colors smoothly
+	local c1 = GalaxyColors[1]
+	local c2 = GalaxyColors[2]
+	local c3 = GalaxyColors[3]
+
+	if alpha < 0.5 then
+		return c1:Lerp(c2, alpha*2)
+	else
+		return c2:Lerp(c3, (alpha-0.5)*2)
 	end
-	return fullText:sub(1, typeIndex)
 end
 
--- START
+local function InvertColor(color)
+	return Color3.new(1 - color.R, 1 - color.G, 1 - color.B)
+end
+
+-- ===== START SYSTEM =====
 local function StartSystem()
 	Word = NameBox.Text ~= "" and NameBox.Text or Word
+	charCount = 1
+
+	-- close GUI
 	ScreenGui:Destroy()
-	typeIndex = 0
 
 	Connection = RunService.Heartbeat:Connect(function(dt)
+		local NewColor = GetGalaxyColor(dt)
+		local StrokeColor = InvertColor(NewColor)
 
-		local NewColor = GetColor(dt)
-
-		-- Update Colors
+		-- SEND TEXT + STROKE
 		pcall(function()
-			ColorRemote:FireServer(NewColor)
+			ColorRemote:FireServer(NewColor, StrokeColor)
 		end)
 
+		-- BIO COLOR
 		lastBioUpdate += dt
 		if lastBioUpdate >= BioUpdateFrequency then
 			lastBioUpdate = 0
-
 			pcall(function()
 				if isBioFunction then
 					BioColorRemote:InvokeServer(NewColor)
@@ -95,13 +112,19 @@ local function StartSystem()
 			end)
 		end
 
-		-- Typewriter update
-		local typed = TypewriterText(Word)
+		-- NAME TYPING
+		lastNameUpdate += dt
+		if lastNameUpdate >= NameSpeed then
+			lastNameUpdate = 0
 
-		pcall(function()
-			NameRemote:FireServer(typed)
-		end)
+			local text = string.sub(Word,1,charCount)
 
+			pcall(function()
+				NameRemote:FireServer(text)
+			end)
+
+			charCount = (charCount >= #Word) and 1 or (charCount + 1)
+		end
 	end)
 end
 
