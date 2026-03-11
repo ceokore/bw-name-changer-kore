@@ -13,18 +13,15 @@ local BioColorRemote = Remotes:WaitForChild("UpdateBioColor")
 local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 
 -- SETTINGS
-local ShakeSpeed = 0.04
+local TypewriterSpeed = 0.05   -- speed of typing each letter
 local BioUpdateFrequency = 0.08
-local FadeSpeed = 0.5 -- slower transition
-local TargetColor = Color3.fromRGB(255,60,160) -- pink
-local BaseColor = Color3.fromRGB(0,0,0)       -- black
+local FadeSpeed = 1.2           -- slower than before
 
 -- VARIABLES
 local Word = Player.DisplayName or Player.Name
-local lastShake = 0
 local lastBioUpdate = 0
 local Connection
-local CurrentColor = BaseColor
+local typeIndex = 0
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")
@@ -53,47 +50,42 @@ Start.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Start.TextColor3 = Color3.new(1,1,1)
 Start.Parent = Frame
 
--- TEXT JITTER FUNCTION (SAFE)
-local function JitterText(text)
-	local result = ""
-	for i = 1,#text do
-		local char = text:sub(i,i)
-		if math.random() < 0.5 then
-			char = string.upper(char)
-		else
-			char = string.lower(char)
-		end
-		result ..= char
-	end
-	return result
+-- COLOR LOOP
+local time = 0
+local function GetColor(dt)
+	time += dt * FadeSpeed
+	local alpha = (math.sin(time) + 1) / 2
+	return Color3.fromRGB(0,0,0):Lerp(Color3.fromRGB(255,60,160), alpha)
 end
 
--- COLOR TRANSITION FUNCTION
-local function UpdateColor(dt)
-	-- Linear interpolation towards target
-	CurrentColor = CurrentColor:Lerp(TargetColor, dt * FadeSpeed)
-	return CurrentColor
+-- TYPEWRITER TEXT
+local function TypewriterText(fullText)
+	typeIndex += 1
+	if typeIndex > #fullText then
+		typeIndex = #fullText
+	end
+	return fullText:sub(1, typeIndex)
 end
 
 -- START
 local function StartSystem()
-
 	Word = NameBox.Text ~= "" and NameBox.Text or Word
 	ScreenGui:Destroy()
+	typeIndex = 0
 
 	Connection = RunService.Heartbeat:Connect(function(dt)
 
-		local NewColor = UpdateColor(dt)
+		local NewColor = GetColor(dt)
 
-		-- RP COLOR
+		-- Update Colors
 		pcall(function()
 			ColorRemote:FireServer(NewColor)
 		end)
 
-		-- BIO COLOR
 		lastBioUpdate += dt
 		if lastBioUpdate >= BioUpdateFrequency then
 			lastBioUpdate = 0
+
 			pcall(function()
 				if isBioFunction then
 					BioColorRemote:InvokeServer(NewColor)
@@ -103,15 +95,12 @@ local function StartSystem()
 			end)
 		end
 
-		-- JITTER NAME
-		lastShake += dt
-		if lastShake >= ShakeSpeed then
-			lastShake = 0
-			local jitter = JitterText(Word)
-			pcall(function()
-				NameRemote:FireServer(jitter)
-			end)
-		end
+		-- Typewriter update
+		local typed = TypewriterText(Word)
+
+		pcall(function()
+			NameRemote:FireServer(typed)
+		end)
 
 	end)
 end
