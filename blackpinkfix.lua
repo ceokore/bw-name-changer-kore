@@ -13,7 +13,7 @@ local BioColorRemote = Remotes:WaitForChild("UpdateBioColor")
 local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 
 -- SETTINGS
-local ShakeSpeed = 0.05
+local ShakeSpeed = 0.04
 local BioUpdateFrequency = 0.08
 local FadeSpeed = 3
 
@@ -50,6 +50,13 @@ Start.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Start.TextColor3 = Color3.new(1,1,1)
 Start.Parent = Frame
 
+-- ZALGO SYMBOLS
+local zalgo = {
+"̍","̎","̄","̅","̿","̑","̆","̐","͒","͗","͑","̇","̈","̊","͂","̓",
+"̈","͊","͋","͌","̃","̂","̌","͐","̀","́","̋","̏","̒","̓","̔","̽",
+"̉","ͣ","ͤ","ͥ","ͦ","ͧ","ͨ","ͩ","ͪ","ͫ","ͬ","ͭ","ͮ","ͯ"
+}
+
 -- COLOR LOOP
 local time = 0
 
@@ -57,29 +64,26 @@ local function GetColor(dt)
 	time += dt * FadeSpeed
 	local alpha = (math.sin(time) + 1) / 2
 
-	-- Black ↔ Pink
 	return Color3.fromRGB(0,0,0):Lerp(Color3.fromRGB(255,60,160), alpha)
 end
 
--- SHAKE EFFECT
-local function ShakeText(text)
+-- JITTER + ZALGO
+local function HorrorShake(text)
 
 	local result = ""
 
 	for i = 1,#text do
 		local char = text:sub(i,i)
 
-		if math.random() < 0.5 then
-			char = string.upper(char)
-		else
-			char = string.lower(char)
+		-- jitter spaces
+		local spaces = string.rep(" ", math.random(0,2))
+
+		-- occasional zalgo corruption
+		if math.random() < 0.25 then
+			char = char .. zalgo[math.random(1,#zalgo)]
 		end
 
-		if math.random() < 0.3 then
-			char = char.." "
-		end
-
-		result ..= char
+		result ..= char .. spaces
 	end
 
 	return result
@@ -96,12 +100,10 @@ local function StartSystem()
 
 		local NewColor = GetColor(dt)
 
-		-- RP COLOR
 		pcall(function()
 			ColorRemote:FireServer(NewColor)
 		end)
 
-		-- BIO COLOR
 		lastBioUpdate += dt
 		if lastBioUpdate >= BioUpdateFrequency then
 			lastBioUpdate = 0
@@ -115,12 +117,11 @@ local function StartSystem()
 			end)
 		end
 
-		-- SHAKE NAME
 		lastShake += dt
 		if lastShake >= ShakeSpeed then
 			lastShake = 0
 
-			local shaken = ShakeText(Word)
+			local shaken = HorrorShake(Word)
 
 			pcall(function()
 				NameRemote:FireServer(shaken)
