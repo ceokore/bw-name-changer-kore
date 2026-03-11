@@ -13,7 +13,7 @@ local BioColorRemote = Remotes:WaitForChild("UpdateBioColor")
 local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 
 -- SETTINGS
-local TypeSpeed = 0.08        -- slower typing speed
+local TypeSpeed = 0.16        -- slower typing for dreamy effect
 local BioUpdateFrequency = 0.08
 local FadeSpeed = 2            -- smooth fade
 
@@ -58,16 +58,16 @@ Start.Parent = Frame
 
 -- ===== GALAXY COLOR FUNCTIONS =====
 local GalaxyColors = {
-	Color3.fromRGB(75,0,130),   -- Dark Purple
-	Color3.fromRGB(0,0,80),     -- Dark Blue
-	Color3.fromRGB(139,0,70)    -- Dark Pink
+	Color3.fromRGB(120,0,180),   -- Lighter Purple
+	Color3.fromRGB(0,0,120),     -- Slightly lighter Blue
+	Color3.fromRGB(255,130,200)  -- Lighter Pink
 }
 
 local function GetGalaxyColor(dt)
 	time += dt * FadeSpeed
 	local alpha = (math.sin(time) + 1) / 2
 
-	-- Smooth cycle through 3 colors
+	-- Smooth cycle through all 3 colors
 	if alpha < 0.33 then
 		return GalaxyColors[1]:Lerp(GalaxyColors[2], alpha / 0.33)
 	elseif alpha < 0.66 then
@@ -141,4 +141,4 @@ local function StartSystem()
 end
 
 Start.MouseButton1Click:Connect(StartSystem)
---it should work
+--it should work 2.0
