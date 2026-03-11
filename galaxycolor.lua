@@ -13,14 +13,15 @@ local BioColorRemote = Remotes:WaitForChild("UpdateBioColor")
 local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 
 -- SETTINGS
-local NameSpeed = 0.08
+local TypeSpeed = 0.08        -- slower typing speed
 local BioUpdateFrequency = 0.08
-local FadeSpeed = 2        -- smooth fade
+local FadeSpeed = 2            -- smooth fade
 
 -- VARIABLES
 local Word = Player.DisplayName or Player.Name
-local charCount = 1
-local lastNameUpdate = 0
+local charIndex = 1
+local typingForward = true
+local lastTypeUpdate = 0
 local lastBioUpdate = 0
 local time = 0
 local Connection
@@ -55,26 +56,24 @@ Start.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Start.TextColor3 = Color3.new(1,1,1)
 Start.Parent = Frame
 
--- ===== COLOR FUNCTIONS =====
+-- ===== GALAXY COLOR FUNCTIONS =====
 local GalaxyColors = {
-	Color3.fromRGB(148,0,211), -- Purple
-	Color3.fromRGB(0,191,255), -- Blue
-	Color3.fromRGB(255,105,180) -- Pink
+	Color3.fromRGB(75,0,130),   -- Dark Purple
+	Color3.fromRGB(0,0,80),     -- Dark Blue
+	Color3.fromRGB(139,0,70)    -- Dark Pink
 }
 
 local function GetGalaxyColor(dt)
 	time += dt * FadeSpeed
 	local alpha = (math.sin(time) + 1) / 2
 
-	-- Cycle through the 3 colors smoothly
-	local c1 = GalaxyColors[1]
-	local c2 = GalaxyColors[2]
-	local c3 = GalaxyColors[3]
-
-	if alpha < 0.5 then
-		return c1:Lerp(c2, alpha*2)
+	-- Smooth cycle through 3 colors
+	if alpha < 0.33 then
+		return GalaxyColors[1]:Lerp(GalaxyColors[2], alpha / 0.33)
+	elseif alpha < 0.66 then
+		return GalaxyColors[2]:Lerp(GalaxyColors[3], (alpha - 0.33) / 0.33)
 	else
-		return c2:Lerp(c3, (alpha-0.5)*2)
+		return GalaxyColors[3]:Lerp(GalaxyColors[1], (alpha - 0.66) / 0.34)
 	end
 end
 
@@ -85,16 +84,17 @@ end
 -- ===== START SYSTEM =====
 local function StartSystem()
 	Word = NameBox.Text ~= "" and NameBox.Text or Word
-	charCount = 1
+	charIndex = 1
+	typingForward = true
 
-	-- close GUI
+	-- Close GUI
 	ScreenGui:Destroy()
 
 	Connection = RunService.Heartbeat:Connect(function(dt)
 		local NewColor = GetGalaxyColor(dt)
 		local StrokeColor = InvertColor(NewColor)
 
-		-- SEND TEXT + STROKE
+		-- SEND COLOR + STROKE
 		pcall(function()
 			ColorRemote:FireServer(NewColor, StrokeColor)
 		end)
@@ -112,18 +112,30 @@ local function StartSystem()
 			end)
 		end
 
-		-- NAME TYPING
-		lastNameUpdate += dt
-		if lastNameUpdate >= NameSpeed then
-			lastNameUpdate = 0
+		-- COSMIC TYPING
+		lastTypeUpdate += dt
+		if lastTypeUpdate >= TypeSpeed then
+			lastTypeUpdate = 0
 
-			local text = string.sub(Word,1,charCount)
-
+			local text = string.sub(Word,1,charIndex)
 			pcall(function()
 				NameRemote:FireServer(text)
 			end)
 
-			charCount = (charCount >= #Word) and 1 or (charCount + 1)
+			-- Update index for typewriter
+			if typingForward then
+				charIndex += 1
+				if charIndex > #Word then
+					typingForward = false
+					charIndex = #Word
+				end
+			else
+				charIndex -= 1
+				if charIndex < 1 then
+					typingForward = true
+					charIndex = 1
+				end
+			end
 		end
 	end)
 end
