@@ -50,9 +50,9 @@ Start.Parent = Frame
 local time = 0
 
 local function GetBWColor(dt)
-	time += dt * FadeSpeed
+	time += dt * 1.25
 	local alpha = (math.sin(time) + 1) / 2
-	return Color3.fromRGB(255,120,0):Lerp(Color3.fromRGB(255,255,0), alpha)
+	return Color3.fromRGB(200,80,0):Lerp(Color3.fromRGB(230,170,0), alpha)
 end
 
 local function StartSystem()
