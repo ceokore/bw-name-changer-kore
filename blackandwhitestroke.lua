@@ -10,8 +10,6 @@ local ColorRemote = Remotes:WaitForChild("UpdateRPColor")
 local NameRemote = Remotes:WaitForChild("UpdateRPName")
 local BioColorRemote = Remotes:WaitForChild("UpdateBioColor")
 
-local StrokeRemote = Remotes:FindFirstChild("UpdateRPStroke")
-
 local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 
 -- SETTINGS
@@ -24,8 +22,8 @@ local Word = Player.DisplayName or Player.Name
 local charCount = 1
 local lastNameUpdate = 0
 local lastBioUpdate = 0
-local Connection
 local time = 0
+local Connection
 
 -- ===== GUI =====
 local ScreenGui = Instance.new("ScreenGui")
@@ -92,17 +90,10 @@ local function StartSystem()
 		local NewColor = GetBWColor(dt)
 		local StrokeColor = InvertColor(NewColor)
 
-		-- TEXT COLOR
+		-- SEND TEXT + STROKE
 		pcall(function()
-			ColorRemote:FireServer(NewColor)
+			ColorRemote:FireServer(NewColor, StrokeColor)
 		end)
-
-		-- STROKE COLOR
-		if StrokeRemote then
-			pcall(function()
-				StrokeRemote:FireServer(StrokeColor)
-			end)
-		end
 
 		-- BIO COLOR
 		lastBioUpdate += dt
