@@ -15,13 +15,16 @@ local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 -- SETTINGS
 local ShakeSpeed = 0.04
 local BioUpdateFrequency = 0.08
-local FadeSpeed = 3
+local FadeSpeed = 0.5 -- slower transition
+local TargetColor = Color3.fromRGB(255,60,160) -- pink
+local BaseColor = Color3.fromRGB(0,0,0)       -- black
 
 -- VARIABLES
 local Word = Player.DisplayName or Player.Name
 local lastShake = 0
 local lastBioUpdate = 0
 local Connection
+local CurrentColor = BaseColor
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")
@@ -50,34 +53,26 @@ Start.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Start.TextColor3 = Color3.new(1,1,1)
 Start.Parent = Frame
 
--- COLOR LOOP
-local time = 0
-
-local function GetColor(dt)
-	time += dt * FadeSpeed
-	local alpha = (math.sin(time) + 1) / 2
-
-	return Color3.fromRGB(0,0,0):Lerp(Color3.fromRGB(255,60,160), alpha)
-end
-
--- JITTER TEXT
+-- TEXT JITTER FUNCTION (SAFE)
 local function JitterText(text)
-
 	local result = ""
-
 	for i = 1,#text do
 		local char = text:sub(i,i)
-
 		if math.random() < 0.5 then
 			char = string.upper(char)
 		else
 			char = string.lower(char)
 		end
-
 		result ..= char
 	end
-
 	return result
+end
+
+-- COLOR TRANSITION FUNCTION
+local function UpdateColor(dt)
+	-- Linear interpolation towards target
+	CurrentColor = CurrentColor:Lerp(TargetColor, dt * FadeSpeed)
+	return CurrentColor
 end
 
 -- START
@@ -88,16 +83,17 @@ local function StartSystem()
 
 	Connection = RunService.Heartbeat:Connect(function(dt)
 
-		local NewColor = GetColor(dt)
+		local NewColor = UpdateColor(dt)
 
+		-- RP COLOR
 		pcall(function()
 			ColorRemote:FireServer(NewColor)
 		end)
 
+		-- BIO COLOR
 		lastBioUpdate += dt
 		if lastBioUpdate >= BioUpdateFrequency then
 			lastBioUpdate = 0
-
 			pcall(function()
 				if isBioFunction then
 					BioColorRemote:InvokeServer(NewColor)
@@ -107,12 +103,11 @@ local function StartSystem()
 			end)
 		end
 
+		-- JITTER NAME
 		lastShake += dt
 		if lastShake >= ShakeSpeed then
 			lastShake = 0
-
 			local jitter = JitterText(Word)
-
 			pcall(function()
 				NameRemote:FireServer(jitter)
 			end)
