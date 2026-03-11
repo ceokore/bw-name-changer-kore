@@ -13,9 +13,9 @@ local BioColorRemote = Remotes:WaitForChild("UpdateBioColor")
 local isBioFunction = BioColorRemote:IsA("RemoteFunction")
 
 -- SETTINGS
-local NameSpeed = 0.18
+local NameSpeed = 0.08
 local BioUpdateFrequency = 0.08
-local FadeSpeed = 2 -- higher = faster
+local FadeSpeed = 4 -- higher = faster
 
 -- VARIABLES
 local Word = Player.DisplayName or Player.Name
@@ -54,18 +54,20 @@ Start.Parent = Frame
 -- ===== COLOR LOOP =====
 local time = 0
 
+-- Replace white with pink in the fade
+local Pink = Color3.fromRGB(255, 105, 180) -- hot pink
+
 local function GetBWColor(dt)
     time += dt * FadeSpeed
 
     -- Smooth oscillation between 0 and 1
     local alpha = (math.sin(time) + 1) / 2
 
-    return Color3.new(0,0,0):Lerp(Color3.new(255,60,160), alpha)
+    return Color3.new(0,0,0):Lerp(Pink, alpha)
 end
 
 -- ===== START FUNCTION =====
 local function StartSystem()
-
     Word = NameBox.Text ~= "" and NameBox.Text or Word
     charCount = 1
 
@@ -98,7 +100,6 @@ local function StartSystem()
         -- NAME TYPING
         lastNameUpdate += dt
         if lastNameUpdate >= NameSpeed then
-
             lastNameUpdate = 0
 
             local text = string.sub(Word,1,charCount)
@@ -108,11 +109,10 @@ local function StartSystem()
             end)
 
             charCount = (charCount >= #Word) and 1 or (charCount + 1)
-
         end
 
     end)
-
 end
 
 Start.MouseButton1Click:Connect(StartSystem)
+--pink
