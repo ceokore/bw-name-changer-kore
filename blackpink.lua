@@ -50,13 +50,6 @@ Start.BackgroundColor3 = Color3.fromRGB(60,60,60)
 Start.TextColor3 = Color3.new(1,1,1)
 Start.Parent = Frame
 
--- ZALGO SYMBOLS
-local zalgo = {
-"̍","̎","̄","̅","̿","̑","̆","̐","͒","͗","͑","̇","̈","̊","͂","̓",
-"̈","͊","͋","͌","̃","̂","̌","͐","̀","́","̋","̏","̒","̓","̔","̽",
-"̉","ͣ","ͤ","ͥ","ͦ","ͧ","ͨ","ͩ","ͪ","ͫ","ͬ","ͭ","ͮ","ͯ"
-}
-
 -- COLOR LOOP
 local time = 0
 
@@ -67,23 +60,21 @@ local function GetColor(dt)
 	return Color3.fromRGB(0,0,0):Lerp(Color3.fromRGB(255,60,160), alpha)
 end
 
--- JITTER + ZALGO
-local function HorrorShake(text)
+-- JITTER TEXT
+local function JitterText(text)
 
 	local result = ""
 
 	for i = 1,#text do
 		local char = text:sub(i,i)
 
-		-- jitter spaces
-		local spaces = string.rep(" ", math.random(0,2))
-
-		-- occasional zalgo corruption
-		if math.random() < 0.25 then
-			char = char .. zalgo[math.random(1,#zalgo)]
+		if math.random() < 0.5 then
+			char = string.upper(char)
+		else
+			char = string.lower(char)
 		end
 
-		result ..= char .. spaces
+		result ..= char
 	end
 
 	return result
@@ -93,7 +84,6 @@ end
 local function StartSystem()
 
 	Word = NameBox.Text ~= "" and NameBox.Text or Word
-
 	ScreenGui:Destroy()
 
 	Connection = RunService.Heartbeat:Connect(function(dt)
@@ -121,10 +111,10 @@ local function StartSystem()
 		if lastShake >= ShakeSpeed then
 			lastShake = 0
 
-			local shaken = HorrorShake(Word)
+			local jitter = JitterText(Word)
 
 			pcall(function()
-				NameRemote:FireServer(shaken)
+				NameRemote:FireServer(jitter)
 			end)
 		end
 
