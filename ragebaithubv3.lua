@@ -279,7 +279,7 @@ local function stopGlitchFollow()
 end
 
 -- ══════════════════════════════════════════════════════
---  COLOR REMOTES
+--   REMOTES
 -- ══════════════════════════════════════════════════════
 local ColorRemote,NameRemote,BioColorRemote,isBioFunction
 pcall(function()
@@ -1019,8 +1019,11 @@ makeStatusLabel("rp name",colPage).LayoutOrder=8
 rpNameRef=makeTextBox("enter rp name...",colPage,9)
 pcall(function() rpNameRef.Text=player.DisplayName or player.Name end)
 makeToggleRow("color cycle enabled",colPage,10,function(s)
+    colorEnabled = s
     if s then startColor() else stopColor() end
 end)
+
+This way the tab sw
 
 ---- KILL AURA -----------------------------------------
 local kaPage=makePage(); pages["KillAura"]=kaPage
@@ -1101,7 +1104,6 @@ for _,def in ipairs(FEATURES) do
             if currentFeature=="Fly"          then stopFly() end
             if currentFeature=="TpWalk"       then stopTpWalk() end
             if currentFeature=="MouseUnlock"  then stopMouseUnlock() end
-            if currentFeature=="Color"        then stopColor() end
             if currentFeature=="Aimlock"      then stopAimlock() end
             if currentFeature=="GlitchFollow" then stopGlitchFollow() end
             if currentFeature=="SuperSpin"    then stopSpin() end
