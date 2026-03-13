@@ -1,9 +1,3 @@
--- Kore AuraKill v3 — LAG-FIXED + CLEAN UI + BACKGROUND ONLY
--- Dots completely removed
--- Background image forced (black base made fully transparent so nothing blocks it)
--- Textboxes: borders removed + cleaner look (no stroke, no default text clutter)
--- General UI cleanup: tighter spacing, no unnecessary frames
-
 do
     local Players          = game:GetService("Players")
     local UserInputService = game:GetService("UserInputService")
@@ -19,8 +13,8 @@ do
 
     -- ── state ────────────────────────────────────────────────────────────────
     local KillAuraEnabled  = false
-    local KillAuraRange    = 100
-    local AttacksPerSecond = 20
+    local KillAuraRange    = 200
+    local AttacksPerSecond = 6000
     local HitboxEnabled    = false
     local HitboxVisible    = false
     local HitboxSize       = 10
@@ -659,8 +653,8 @@ do
         KillAuraEnabled = state
         if state then startKillAura() else stopKillAura() end
     end, 1)
-    createSlider("killaura range",   5,  100, 100, KASection, function(v) KillAuraRange = v * 2 end, 2)
-    createSlider("attacks/second",   1,  6000, 20, KASection, function(v) AttacksPerSecond = v end, 3)
+    createSlider("killaura range",   5,  200, 200, KASection, function(v) KillAuraRange = v * 2 end, 2)
+    createSlider("attacks/second",   1,  6000, 6000, KASection, function(v) AttacksPerSecond = v end, 3)
     createSlider("hitbox size",      1,   50,  10, KASection, function(v) HitboxSize = v; updateAllHitboxes() end, 4)
     createToggle("hitbox enabled", KASection, function(s) HitboxEnabled = s; updateAllHitboxes() end, 5)
     createToggle("hitbox visible", KASection, function(s) HitboxVisible = s; updateAllHitboxes() end, 6)
