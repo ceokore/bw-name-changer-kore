@@ -14,7 +14,7 @@ do
     -- ── state ────────────────────────────────────────────────────────────────
     local KillAuraEnabled  = false
     local KillAuraRange    = 500
-    local AttacksPerSecond = 6000
+    local AttacksPerSecond = 9000
     local HitboxEnabled    = false
     local HitboxVisible    = false
     local HitboxSize       = 10
@@ -654,7 +654,7 @@ do
         if state then startKillAura() else stopKillAura() end
     end, 1)
     createSlider("killaura range",   5,  500, 500, KASection, function(v) KillAuraRange = v * 2 end, 2)
-    createSlider("attacks/second",   1,  6000, 6000, KASection, function(v) AttacksPerSecond = v end, 3)
+    createSlider("attacks/second",   1,  9000, 9000, KASection, function(v) AttacksPerSecond = v end, 3)
     createSlider("hitbox size",      1,   50,  10, KASection, function(v) HitboxSize = v; updateAllHitboxes() end, 4)
     createToggle("hitbox enabled", KASection, function(s) HitboxEnabled = s; updateAllHitboxes() end, 5)
     createToggle("hitbox visible", KASection, function(s) HitboxVisible = s; updateAllHitboxes() end, 6)
