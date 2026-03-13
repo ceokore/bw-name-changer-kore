@@ -653,7 +653,7 @@ do
         KillAuraEnabled = state
         if state then startKillAura() else stopKillAura() end
     end, 1)
-    createSlider("killaura range",   5,  200, 200, KASection, function(v) KillAuraRange = v * 2 end, 2)
+    createSlider("killaura range",   5,  500, 500, KASection, function(v) KillAuraRange = v * 2 end, 2)
     createSlider("attacks/second",   1,  6000, 6000, KASection, function(v) AttacksPerSecond = v end, 3)
     createSlider("hitbox size",      1,   50,  10, KASection, function(v) HitboxSize = v; updateAllHitboxes() end, 4)
     createToggle("hitbox enabled", KASection, function(s) HitboxEnabled = s; updateAllHitboxes() end, 5)
