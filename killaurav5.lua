@@ -13,7 +13,7 @@ do
 
     -- ── state ────────────────────────────────────────────────────────────────
     local KillAuraEnabled  = false
-    local KillAuraRange    = 200
+    local KillAuraRange    = 500
     local AttacksPerSecond = 6000
     local HitboxEnabled    = false
     local HitboxVisible    = false
