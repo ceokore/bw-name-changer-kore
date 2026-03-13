@@ -710,6 +710,7 @@ local colorRunning=false; local colorConn=nil
 local pickedH,pickedS,pickedV=0,1,1
 local colorCycleSpeed=4; local colorTime=0; local colorCharCount=1
 local colorWord=player.DisplayName or player.Name
+local storedRPName=colorWord
 local lastNameUpd,lastBioUpd=0,0; local nameFreq,bioFreq=0.08,0.08
 local colorPreset="custom"  -- "custom","bw","pink","galaxy","gold","purpleyellow"
 local colorPresetTime=0; local galaxyGradRot=0
@@ -719,6 +720,14 @@ local spinning=false; local spinConn=nil
 -- refs
 local flyAmountRef,tpwAmountRef,rpNameRef,spinSpeedRef=nil,nil,nil,nil
 local gfToggleFn=nil
+
+rpNameRef.FocusLost:Connect(function()
+    if rpNameRef.Text ~= "" then
+        storedRPName = rpNameRef.Text
+    else
+        storedRPName = player.DisplayName or player.Name
+    end
+end)
 
 -- ── feature stop/start ───────────────────────────────
 local function stopAimlock()
@@ -792,7 +801,7 @@ end
 local function startColor()
     colorRunning=true; colorTime=0; colorPresetTime=0; galaxyGradRot=0
     colorCharCount=1; bounceForward=true; lastNameUpd=0; lastBioUpd=0
-    colorWord=(rpNameRef and rpNameRef.Text~="" and rpNameRef.Text) or (player.DisplayName or player.Name)
+    colorWord = storedRPName
     colorConn=RunService.Heartbeat:Connect(function(dt)
         colorPresetTime+=dt
         local col
@@ -828,7 +837,10 @@ local function startColor()
                 else colorCharCount-=1; if colorCharCount<1 then bounceForward=true; colorCharCount=1 end end
             else
                 text=string.sub(colorWord,1,colorCharCount)
-                colorCharCount=(colorCharCount>=#colorWord) and 1 or (colorCharCount+1)
+                colorCharCount = colorCharCount + 1
+                    if colorCharCount > #colorWord then
+                    colorCharCount = 1
+                end
             end
             fireNameRemote(text)
         end
