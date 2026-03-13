@@ -721,14 +721,6 @@ local spinning=false; local spinConn=nil
 local flyAmountRef,tpwAmountRef,rpNameRef,spinSpeedRef=nil,nil,nil,nil
 local gfToggleFn=nil
 
-rpNameRef.FocusLost:Connect(function()
-    if rpNameRef.Text ~= "" then
-        storedRPName = rpNameRef.Text
-    else
-        storedRPName = player.DisplayName or player.Name
-    end
-end)
-
 -- ── feature stop/start ───────────────────────────────
 local function stopAimlock()
     aimLocking=false
@@ -1030,8 +1022,14 @@ end)
 makeStatusLabel("rp name",colPage).LayoutOrder=8
 rpNameRef=makeTextBox("enter rp name...",colPage,9)
 pcall(function() rpNameRef.Text=player.DisplayName or player.Name end)
+rpNameRef.FocusLost:Connect(function()
+    if rpNameRef.Text ~= "" then
+        storedRPName = rpNameRef.Text
+    else
+        storedRPName = player.DisplayName or player.Name
+    end
+end)
 makeToggleRow("color cycle enabled",colPage,10,function(s)
-    colorEnabled = s
     if s then startColor() else stopColor() end
 end)
 
