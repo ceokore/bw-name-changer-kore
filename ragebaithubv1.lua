@@ -1023,8 +1023,6 @@ makeToggleRow("color cycle enabled",colPage,10,function(s)
     if s then startColor() else stopColor() end
 end)
 
-This way the tab sw
-
 ---- KILL AURA -----------------------------------------
 local kaPage=makePage(); pages["KillAura"]=kaPage
 makeSectionHeader("KILL AURA",kaPage,0)
