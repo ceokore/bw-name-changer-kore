@@ -1049,16 +1049,10 @@ for _,def in ipairs(FEATURES) do
     local btn=makeSideBtn(def.label,def.order); sideBtns[def.key]=btn
     btn.MouseButton1Click:Connect(function()
         if currentFeature==def.key then
-            stopAllFeatures(); currentFeature=nil
+            currentFeature=nil
             PLPanel.Visible=false; updateContentLayout()
             setSideActive(nil); for _,v in pairs(pages) do v.Visible=false end
         else
-            if currentFeature=="Fly" then stopFly() end
-            if currentFeature=="TpWalk" then stopTpWalk() end
-            if currentFeature=="MouseUnlock" then stopMouseUnlock() end
-            if currentFeature=="Aimlock" then stopAimlock() end
-            if currentFeature=="GlitchFollow" then stopGlitchFollow() end
-            if currentFeature=="SuperSpin" then stopSpin() end
             currentFeature=def.key; showPage(def.key)
             PLPanel.Visible=def.needsPL; updateContentLayout()
             setSideActive(btn)
