@@ -487,6 +487,33 @@ do
     LogoText.Text = "kore\naura v3"; LogoText.TextWrapped = true
     LogoText.ZIndex = 5; LogoText.Parent = Sidebar
 
+    local MadeWith = Instance.new("TextLabel")
+    MadeWith.Size = UDim2.new(1,-12,0,36); MadeWith.Position = UDim2.new(0,6,0,82)
+    MadeWith.BackgroundTransparency = 1
+    MadeWith.TextColor3 = Color3.fromRGB(255,255,255)
+    MadeWith.TextTransparency = 0.45
+    MadeWith.Font = Enum.Font.GothamSemibold; MadeWith.TextSize = 11
+    MadeWith.Text = "made with love by kore 🖤🤍"
+    MadeWith.TextWrapped = true; MadeWith.ZIndex = 5; MadeWith.Parent = Sidebar
+
+    local RescanInfo = Instance.new("TextLabel")
+    RescanInfo.Size = UDim2.new(1,-12,0,48); RescanInfo.Position = UDim2.new(0,6,0,122)
+    RescanInfo.BackgroundTransparency = 1
+    RescanInfo.TextColor3 = Color3.fromRGB(255,255,255)
+    RescanInfo.TextTransparency = 0.45
+    RescanInfo.Font = Enum.Font.Gotham; RescanInfo.TextSize = 10
+    RescanInfo.Text = "rescan: checks for remotes and module scripts."
+    RescanInfo.TextWrapped = true; RescanInfo.ZIndex = 5; RescanInfo.Parent = Sidebar
+
+    local RageInfo = Instance.new("TextLabel")
+    RageInfo.Size = UDim2.new(1,-12,0,48); RageInfo.Position = UDim2.new(0,6,0,174)
+    RageInfo.BackgroundTransparency = 1
+    RageInfo.TextColor3 = Color3.fromRGB(255,255,255)
+    RageInfo.TextTransparency = 0.45
+    RageInfo.Font = Enum.Font.Gotham; RageInfo.TextSize = 10
+    RageInfo.Text = "enjoy ragebaiting the people!"
+    RageInfo.TextWrapped = true; RageInfo.ZIndex = 5; RageInfo.Parent = Sidebar
+    
     -- ── Content ───────────────────────────────────────────────────────────────
     local ContentArea = Instance.new("ScrollingFrame")
     ContentArea.Size = UDim2.new(1,-155,1,-10); ContentArea.Position = UDim2.new(0,150,0,5)
